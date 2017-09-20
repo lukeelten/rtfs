@@ -12,8 +12,9 @@ The goal of this project is to write a file system which can be loaded into a Li
 Nevertheless, this project is not meant to ever produce a file system which can be used in production. The file system is meant for educational purposes only.
 
 ### File System Structure
+For the internal structure of the file system a Btree is going to get used to ensure a logarithmic read time. 
 
 ### Real-Time Component
-To meet the real-time computation learning goal, the file system will support a special mount option which enable a memory write cache. This ensures a fast write on the file system while the real write will be done asynchronously at a later point in time. Application which needs a real time performance on this file system can instantly continue working while the file system writes down the data in background.
+To meet the real-time computation learning goal, the file system will support a special mount option which enables a memory write cache. This ensures a fast write on the file system while the real write will be done asynchronously at a later point in time. Application which needs a real time performance on this file system can instantly continue working while the file system writes down the data in background.
 
 This is of-course a very dangerous option. If the power supply fails before all data has been written to disks, data will be lost and possibly the file system will be in an inconsistent state.
