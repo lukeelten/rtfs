@@ -1,8 +1,0 @@
-make -C /lib/modules/4.13.4-1-MANJARO/build M=/home/domenik/Documents/C/rtfs modules
-make[1]: Entering directory '/usr/lib/modules/4.13.4-1-MANJARO/build'
-  CC [M]  /home/domenik/Documents/C/rtfs/rtfs.o
-  Building modules, stage 2.
-  MODPOST 1 modules
-  CC      /home/domenik/Documents/C/rtfs/rtfs.mod.o
-  LD [M]  /home/domenik/Documents/C/rtfs/rtfs.ko
-make[1]: Leaving directory '/usr/lib/modules/4.13.4-1-MANJARO/build'
