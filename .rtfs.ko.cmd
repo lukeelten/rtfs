@@ -1,0 +1,1 @@
+cmd_/home/domenik/Documents/C/rtfs/rtfs.ko := ld -r -m elf_x86_64 -T ./scripts/module-common.lds --build-id  -o /home/domenik/Documents/C/rtfs/rtfs.ko /home/domenik/Documents/C/rtfs/rtfs.o /home/domenik/Documents/C/rtfs/rtfs.mod.o ;  true
