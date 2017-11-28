@@ -2,26 +2,15 @@
 #define RTFS_RTFS_H
 
 
-class Key {
+#define RTFS_VERSION 1
 
-public:
-    explicit Key(unsigned long hash_) : hash(hash_) {}
 
-    unsigned long getFilehash() const noexcept  {
-        return hash & 0x00000000FFFFFFFF;
-    }
+#include "inode.h"
+#include "superblock.h"
 
-    unsigned long getParenthash() const noexcept  {
-        return hash & 0xFFFFFFFF00000000;
-    }
+#include "btree.h"
 
-    unsigned long getHash() const noexcept  {
-        return hash;
-    }
 
-private:
-    unsigned long hash;
-};
 
 
 #endif //RTFS_RTFS_H
