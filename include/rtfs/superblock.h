@@ -5,7 +5,7 @@
 #ifndef RTFS_SUPERBLOCK_H
 #define RTFS_SUPERBLOCK_H
 
-#include "inode.h"
+#include "rtfs/inode.h"
 
 class Superblock {
     friend class Formatter;

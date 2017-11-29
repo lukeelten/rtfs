@@ -7,8 +7,18 @@ using namespace std;
 
 int main() {
 
-    cout << "Addr: " << sizeof(InodeAddress) << endl;
-    cout << "Inode: " << sizeof(Inode) << endl;
+/*
+    off_t s100mb = 100 * 1024 * 1024;
+
+    Formatter formatter;
+    formatter.setFilename("test.rtfs");
+    formatter.setBlockSize(4096);
+    formatter.setFilesystemSize(s100mb);
+
+    formatter.format();
+
+    cout << "================================" << endl;
+*/
 
     return 0;
 }

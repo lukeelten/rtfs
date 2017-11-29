@@ -5,11 +5,10 @@
 #define RTFS_VERSION 1
 
 
-#include "inode.h"
-#include "superblock.h"
-
-#include "btree.h"
-
+#include "rtfs/inode.h"
+#include "rtfs/superblock.h"
+#include "rtfs/formatter.h"
+#include "rtfs/instance.h"
 
 
 

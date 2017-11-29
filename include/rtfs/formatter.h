@@ -6,6 +6,7 @@
 
 using std::string;
 
+class Inode;
 
 class Formatter {
 public:
@@ -21,7 +22,7 @@ public:
 
     void format();
 
-    void setFilename(string filename) noexcept { filename_ = filename; }
+    void setFilename(const string& filename) noexcept { filename_ = filename; }
     void setBlockSize(off_t blockSize) noexcept { superblock.blockSize = blockSize; }
     void setFilesystemSize(off_t size) noexcept { superblock.totalSize = size; }
 

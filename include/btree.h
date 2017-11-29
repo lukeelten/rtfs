@@ -5,7 +5,7 @@
 #ifndef RTFS_BTREE_H
 #define RTFS_BTREE_H
 
-#include "inode.h"
+#include "rtfs/inode.h"
 
 class BTreeKey {
 public:

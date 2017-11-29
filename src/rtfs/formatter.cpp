@@ -1,10 +1,12 @@
 
 #include <string>
 #include <stdexcept>
+#include <cstdio>
 #include <unistd.h>
+#include <iostream>
 
 #include "rtfs.h"
-#include "Formatter.h"
+#include "rtfs/formatter.h"
 
 using namespace std;
 
@@ -22,6 +24,7 @@ void Formatter::format() {
     allocateFile();
 
     writeSuperblock();
+
     fseek(fp, superblock.treeSize, SEEK_CUR);
     Inode root = Inode::initEmpty(superblock.root);
     root.setType(TYPE_DIR);
@@ -61,6 +64,13 @@ void Formatter::allocateFile() {
 }
 
 void Formatter::writeSuperblock() {
+    cout << dec << "Version: " << superblock.version << " - " << hex << superblock.version << endl;
+    cout << dec << "Block Size: " << superblock.blockSize << " - " << hex << superblock.blockSize << endl;
+    cout << dec << "Num Inodes: " << superblock.numInodes << " - " << hex << superblock.numInodes << endl;
+    cout << dec << "Total Size: " << superblock.totalSize << " - " << hex << superblock.totalSize << endl;
+    cout << dec << "Tree Size: " << superblock.treeSize << " - " << hex << superblock.treeSize << endl;
+    cout << dec << "Root Addr: " << superblock.root.getAddress() << " - " << hex << superblock.root.getAddress() << endl;
+
     fseek(fp, 0, SEEK_SET);
     fwrite(&superblock, sizeof(Superblock), 1, fp);
 }

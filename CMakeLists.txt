@@ -3,7 +3,7 @@ project(rtfs)
 
 set(CMAKE_CXX_STANDARD 14)
 
-set(SOURCE_FILES src/main.cpp src/Formatter.cpp src/Inode.cpp)
+set(SOURCE_FILES src/main.cpp src/rtfs/formatter.cpp src/rtfs/inode.cpp src/rtfs/superblock.cpp src/rtfs/instance.cpp)
 include_directories(include)
 
 find_package(PkgConfig)
