@@ -32,8 +32,8 @@ void Formatter::format() {
     writeInode(root);
 
     for (off_t i = 0; i < superblock.numInodes; i++)  {
-        off_t addr = superblock.root + superblock.blockSize + (i * superblock.blockSize);
-        Inode inode = Inode::initEmpty(addr);
+        off_t addr = static_cast<off_t>(superblock.root) + superblock.blockSize + (i * superblock.blockSize);
+        Inode inode = Inode::initEmpty(InodeAddress(addr));
         writeInode(inode);
     }
 
@@ -49,7 +49,7 @@ void Formatter::calculateSizes() noexcept {
     superblock.numInodes = newSize / superblock.blockSize;
     superblock.totalSize = superblock.numInodes * superblock.blockSize;
 
-    superblock.root = (sizeof(Superblock) + superblock.treeSize);
+    superblock.root = InodeAddress(sizeof(Superblock) + superblock.treeSize);
     superblock.version = RTFS_VERSION;
 }
 

@@ -22,22 +22,26 @@ typedef unsigned long u64;
 
 class Inode;
 using std::string;
+using std::hash;
 
 class InodeAddress {
 public:
-    InodeAddress() : addr_(0) {};
-    InodeAddress(off_t addr) : addr_(addr) {}
+    InodeAddress() noexcept : addr_(0) {};
+    explicit InodeAddress(off_t addr) noexcept : addr_(addr) {}
 
     Inode readInode() const;
 
     off_t getAddress() const noexcept { return addr_; }
-    operator off_t() const noexcept { return addr_;}
+    explicit operator off_t() const noexcept { return addr_;}
 
 private:
     off_t addr_;
 };
 
-
+class InodeAddressHasher {
+public:
+    size_t operator () (InodeAddress addr) const noexcept;
+};
 
 class Inode {
 public:
@@ -105,5 +109,14 @@ private:
     gid_t gid_;
     uid_t uid_;
 };
+
+
+// Non  Member Functions
+bool operator == (const InodeAddress& lhs, const InodeAddress& rhs) noexcept;
+bool operator == (const InodeAddress& lhs, off_t rhs) noexcept;
+bool operator == (off_t lhs, const InodeAddress& rhs) noexcept;
+bool operator != (const InodeAddress& lhs, const InodeAddress& rhs) noexcept;
+bool operator != (const InodeAddress& lhs, off_t rhs) noexcept;
+bool operator != (off_t lhs, const InodeAddress& rhs) noexcept;
 
 #endif //RTFS_INODE_H

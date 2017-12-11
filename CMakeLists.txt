@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.8)
 project(rtfs)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 
-set(SOURCE_FILES src/main.cpp src/rtfs/formatter.cpp src/rtfs/inode.cpp src/rtfs/superblock.cpp src/rtfs/instance.cpp)
+set(SOURCE_FILES src/main.cpp src/rtfs/formatter.cpp src/rtfs/inode.cpp src/rtfs/superblock.cpp src/rtfs/instance.cpp src/rtfs/internal.cpp)
 include_directories(include)
 
 find_package(PkgConfig)

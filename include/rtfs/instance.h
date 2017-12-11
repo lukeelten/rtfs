@@ -2,39 +2,58 @@
 #ifndef RTFS_INSTANCE_H
 #define RTFS_INSTANCE_H
 
+#include <fuse.h>
 #include <cstdio>
 #include <memory>
 #include <string>
+#include <mutex>
+#include <unordered_set>
+#include <functional>
 
 #include "superblock.h"
 
 using std::string;
 using std::unique_ptr;
+using std::mutex;
+using std::function;
 
 class RtfsInstance {
 
 public:
-    RtfsInstance(const string& file);
-    ~RtfsInstance() = default; // Default is fine for us
+    RtfsInstance(string file_);
+    ~RtfsInstance(); // Default is fine for us
 
-    // No copy
+    // No copy & No move
     RtfsInstance(const RtfsInstance& ) = delete;
     RtfsInstance& operator = (const RtfsInstance& ) = delete;
+    RtfsInstance(RtfsInstance&& ) = delete;
+    RtfsInstance& operator = (RtfsInstance&& ) = delete;
 
-    // Move is ok
-    RtfsInstance(RtfsInstance&& ) = default;
-    RtfsInstance& operator = (RtfsInstance&& ) = default;
+    // Init FS; Called by fuse
+    RtfsInstance* init (struct fuse_config* config_) noexcept;
+
+    bool openFile(string filename, struct fuse_file_info* fi);
 
     const Superblock& getSuperblock() const noexcept { return superblock; }
     const Inode& getInode() const noexcept { return root; }
-    string getFilename() const noexcept { return filename; }
+    const string& getFilename() const noexcept { return filename; }
+
+    static RtfsInstance* getInstance() noexcept {
+        return static_cast<RtfsInstance*>(fuse_get_context()->private_data);
+    }
 
 private:
     const string filename;
-    unique_ptr<FILE> file;
+    FILE* file;
 
-    const Superblock superblock;
+    Superblock superblock;
     Inode root;
+
+    // Will be handled by fuse, DO NOT DELETE
+    fuse_config* config;
+
+    mutex lock;
+    unordered_set<InodeAddress, InodeAddressHasher> openFiles;
 };
 
 
