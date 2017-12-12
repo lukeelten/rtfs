@@ -1,15 +1,15 @@
 
-#include <sys/types.h>
 
+#include "rtfs/instance.h"
+#include "rtfs/inode_address.h"
 #include "rtfs/inode.h"
-
 
 
 Inode Inode::initEmpty(InodeAddress addr) {
     Inode inode;
     inode.addr_ = addr;
 
-    inode.type_ = TYPE_UNKNOWN;
+    inode.type_ = TYPE_EMPTY;
 
     inode.parent_ = InodeAddress(0);
     inode.next_ = InodeAddress(0);
@@ -27,31 +27,10 @@ Inode Inode::initEmpty(InodeAddress addr) {
     return inode;
 }
 
-bool operator == (const InodeAddress& lhs, const InodeAddress& rhs) noexcept {
-    return lhs.getAddress() == rhs.getAddress();
+bool Inode::save() const noexcept {
+    RtfsInstance* instance = RtfsInstance::getInstance();
+
+    fseek(instance->getFile(), addr_.getAddress(), SEEK_SET);
+    return fwrite(this, sizeof(Inode), 1, instance->getFile()) == sizeof(Inode);
 }
 
-bool operator == (const InodeAddress& lhs, off_t rhs) noexcept {
-    return lhs.getAddress() == rhs;
-}
-
-bool operator == (off_t lhs, const InodeAddress& rhs) noexcept {
-    return lhs == rhs.getAddress();
-}
-
-bool operator != (const InodeAddress& lhs, const InodeAddress& rhs) noexcept {
-    return lhs.getAddress() != rhs.getAddress();
-}
-
-bool operator != (const InodeAddress& lhs, off_t rhs) noexcept {
-    return lhs.getAddress() != rhs;
-}
-
-bool operator != (off_t lhs, const InodeAddress& rhs) noexcept {
-    return lhs != rhs.getAddress();
-}
-
-size_t InodeAddressHasher::operator() (InodeAddress addr) const noexcept {
-    std::hash<off_t> hash;
-    return hash(addr.getAddress());
-}

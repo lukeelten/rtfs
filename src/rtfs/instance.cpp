@@ -5,7 +5,7 @@
 #include <cstdio>
 #include <sys/stat.h>
 
-#include "rtfs/instance.h"
+#include "rtfs.h"
 
 using namespace std;
 
@@ -34,12 +34,20 @@ RtfsInstance::~RtfsInstance() {
     }
 }
 
-RtfsInstance* RtfsInstance::init(struct fuse_config *config_) noexcept {
+RtfsInstance* RtfsInstance::init(struct fuse_config* config_) noexcept {
     config = config_;
     file = fopen(filename.c_str(), "rb+");
 
     if (file == NULL) {
         throw runtime_error("Cannot open FS image.");
+    }
+
+    superblock = Superblock::readFromDisk();
+    root = superblock.getRoot().readInode();
+    openFiles.clear(); // In theory this should be empty anyway
+
+    if (superblock.getVersion() != RTFS_VERSION) {
+        throw runtime_error("Invalid RTFS version found.");
     }
 
     return this;

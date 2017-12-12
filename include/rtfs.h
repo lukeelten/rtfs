@@ -11,10 +11,12 @@
 
 
 #include "rtfs/inode.h"
+#include "rtfs/inode_address.h"
 #include "rtfs/superblock.h"
 #include "rtfs/formatter.h"
 #include "rtfs/instance.h"
 #include "rtfs/internal.h"
+#include "rtfs/file.h"
 
 
 

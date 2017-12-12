@@ -12,6 +12,7 @@
 #define ERR_SUCCESS 0
 #define ERR_NOT_IMPLEMENTED -999
 #define ERR_GENERAL_ERROR -1
+#define ERR_ACTION_FAILED -2
 
 
 

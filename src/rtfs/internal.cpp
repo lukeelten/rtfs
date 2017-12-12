@@ -1,9 +1,12 @@
 
 #include <fuse.h>
+#include <cstdio>
 
 #include "rtfs/instance.h"
 #include "rtfs/internal.h"
+#include "rtfs/file.h"
 
+using namespace std;
 
 // Declarations of internal file system functions
 INTERNAL int rtfs_getattr (const char*, struct stat*, struct fuse_file_info*);
@@ -82,12 +85,12 @@ struct fuse_operations RtfsOperations::operations_ = {
         .fallocate = rfts_fallocate
 };
 
-int rtfs_getattr(const char *, struct stat *, struct fuse_file_info *) {
+int rtfs_getattr(const char* filename, struct stat* buffer, struct fuse_file_info* fi) {
     return 0;
 }
 
 int rtfs_readlink(const char *, char *, size_t) {
-    return 0;
+    return ERR_NOT_IMPLEMENTED;
 }
 
 int rtfs_mknod(const char *, mode_t, dev_t) {
@@ -95,24 +98,36 @@ int rtfs_mknod(const char *, mode_t, dev_t) {
     return ERR_NOT_IMPLEMENTED;
 }
 
-int rtfs_mkdir(const char *, mode_t) {
+int rtfs_mkdir(const char* name, mode_t) {
     return 0;
 }
 
-int rtfs_unlink(const char *) {
+int rtfs_unlink(const char* name) {
     return 0;
 }
 
-int rtfs_rmdir(const char *) {
+int rtfs_rmdir(const char* name) {
     return 0;
 }
 
 int rtfs_symlink(const char *, const char *) {
-    return 0;
+    return ERR_NOT_IMPLEMENTED;
 }
 
-int rtfs_rename(const char *, const char *, unsigned int) {
-    return 0;
+int rtfs_rename(const char* from, const char* to, unsigned int flags) {
+    if (flags) {
+        return ERR_NOT_IMPLEMENTED;
+    }
+
+    // @todo Find address from tree
+    InodeAddress addr;
+    RtfsFile file(addr);
+
+    if (file.rename(to)) {
+        return 0;
+    }
+
+    return ERR_ACTION_FAILED;
 }
 
 int rtfs_link(const char *, const char *) {
@@ -151,18 +166,18 @@ int rtfs_statfs(const char *, struct statvfs *) {
 }
 
 int rtfs_flush(const char *, struct fuse_file_info *) {
+    return fflush(RtfsInstance::getInstance()->getFile());
+}
+
+int rtfs_release(const char*, struct fuse_file_info* fi) {
     return 0;
 }
 
-int rtfs_release(const char *, struct fuse_file_info *) {
-    return 0;
+int rtfs_fsync(const char *, int, struct fuse_file_info* fi) {
+    return fflush(RtfsInstance::getInstance()->getFile());;
 }
 
-int rtfs_fsync(const char *, int, struct fuse_file_info *) {
-    return 0;
-}
-
-int rtfs_opendir(const char *, struct fuse_file_info *) {
+int rtfs_opendir(const char* name, struct fuse_file_info* fi) {
     return 0;
 }
 
@@ -175,7 +190,7 @@ int rtfs_releasedir(const char *, struct fuse_file_info *) {
 }
 
 int rtfs_fsyncdir(const char *, int, struct fuse_file_info *) {
-    return 0;
+    return fflush(RtfsInstance::getInstance()->getFile());
 }
 
 void* rtfs_init(struct fuse_conn_info*, struct fuse_config* config) {
@@ -190,7 +205,9 @@ int rtfs_access(const char *, int) {
     return 0;
 }
 
-int rtfs_create(const char *, mode_t, struct fuse_file_info *) {
+int rtfs_create(const char* path, mode_t mode, struct fuse_file_info* fi) {
+
+
     return 0;
 }
 

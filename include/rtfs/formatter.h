@@ -40,6 +40,4 @@ private:
 };
 
 
-
-
 #endif //RTFS_FORMATTER_H

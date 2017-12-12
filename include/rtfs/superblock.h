@@ -11,9 +11,32 @@ class Superblock {
     friend class Formatter;
 
 public:
-    Superblock() = default;
+    static Superblock readFromDisk();
 
 
+    u8 getVersion() const noexcept {
+        return version;
+    }
+
+    off_t getBlockSize() const noexcept {
+        return blockSize;
+    }
+
+    off_t getNumInodes() const noexcept {
+        return numInodes;
+    }
+
+    off_t getTotalSize() const noexcept {
+        return totalSize;
+    }
+
+    off_t getTreeSize() const noexcept {
+        return treeSize;
+    }
+
+    const InodeAddress& getRoot() const noexcept {
+        return root;
+    }
 
 private:
     u8 version; // RTFS version

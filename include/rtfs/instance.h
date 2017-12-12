@@ -4,7 +4,6 @@
 
 #include <fuse.h>
 #include <cstdio>
-#include <memory>
 #include <string>
 #include <mutex>
 #include <unordered_set>
@@ -13,9 +12,9 @@
 #include "superblock.h"
 
 using std::string;
-using std::unique_ptr;
 using std::mutex;
 using std::function;
+using std::unordered_set;
 
 class RtfsInstance {
 
@@ -40,6 +39,11 @@ public:
 
     static RtfsInstance* getInstance() noexcept {
         return static_cast<RtfsInstance*>(fuse_get_context()->private_data);
+    }
+
+    FILE* getFile() const noexcept {
+        // In practice not really const, but what ever ....
+        return file;
     }
 
 private:

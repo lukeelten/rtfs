@@ -4,50 +4,29 @@
 
 #include <sys/stat.h>
 #include <string>
-#include <string.h>
+#include <cstring>
+
+#include "inode_address.h"
 
 // Typedefs
 typedef unsigned char u8;
-typedef unsigned short u16;
-typedef unsigned int u32;
-typedef unsigned long u64;
-
 
 // Definition of different innode types
 #define TYPE_UNKNOWN 0
-#define TYPE_FILE 1
-#define TYPE_DIR 2
-#define TYPE_SYMLINK 3
+#define TYPE_EMPTY 1
+#define TYPE_ALLOCATED 2
+#define TYPE_FILE 3
+#define TYPE_DIR 4
+#define TYPE_SYMLINK 5
 
 
-class Inode;
 using std::string;
-using std::hash;
-
-class InodeAddress {
-public:
-    InodeAddress() noexcept : addr_(0) {};
-    explicit InodeAddress(off_t addr) noexcept : addr_(addr) {}
-
-    Inode readInode() const;
-
-    off_t getAddress() const noexcept { return addr_; }
-    explicit operator off_t() const noexcept { return addr_;}
-
-private:
-    off_t addr_;
-};
-
-class InodeAddressHasher {
-public:
-    size_t operator () (InodeAddress addr) const noexcept;
-};
 
 class Inode {
 public:
     static Inode initEmpty(InodeAddress addr);
 
-    InodeAddress getAddress() const noexcept { return addr_; }
+    const InodeAddress& getAddress() const noexcept { return addr_; }
     void setAddress(InodeAddress addr) noexcept { addr_ = addr; }
 
     u8 getType() const noexcept { return type_; }
@@ -79,6 +58,8 @@ public:
     gid_t getGid() const noexcept { return gid_; }
     uid_t getUid() const noexcept { return uid_; }
 
+    bool save() const noexcept;
+
     explicit operator bool() const noexcept {
         return addr_.getAddress() > 0;
     }
@@ -109,14 +90,5 @@ private:
     gid_t gid_;
     uid_t uid_;
 };
-
-
-// Non  Member Functions
-bool operator == (const InodeAddress& lhs, const InodeAddress& rhs) noexcept;
-bool operator == (const InodeAddress& lhs, off_t rhs) noexcept;
-bool operator == (off_t lhs, const InodeAddress& rhs) noexcept;
-bool operator != (const InodeAddress& lhs, const InodeAddress& rhs) noexcept;
-bool operator != (const InodeAddress& lhs, off_t rhs) noexcept;
-bool operator != (off_t lhs, const InodeAddress& rhs) noexcept;
 
 #endif //RTFS_INODE_H
