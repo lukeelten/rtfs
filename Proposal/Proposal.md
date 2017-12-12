@@ -10,7 +10,7 @@ All of these topics are included in this project.
 
 ## File System
 The goal of this project is to write a file system using a balanced-tree structure to quickly find inodes. The filesystem should be usable on the linux operating system.
-We will use [FUSE]() to register the filesystem to the kernel an to mount a folder into the existing directory structure.
+We will use [FUSE](https://github.com/libfuse/libfuse) to register the filesystem to the kernel an to mount a folder into the existing directory structure.
 The filesystem itself will be written to a single file, containing all file, folders and meta information of this filesystem.
 
 
