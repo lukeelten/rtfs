@@ -25,6 +25,8 @@ public:
     off_t getAddress() const noexcept { return addr_; }
     explicit operator off_t() const noexcept { return addr_;}
 
+    operator bool() const noexcept { return addr_ > 0; }
+
 private:
     off_t addr_;
 };

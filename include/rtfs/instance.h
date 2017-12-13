@@ -6,15 +6,17 @@
 #include <cstdio>
 #include <string>
 #include <mutex>
-#include <unordered_set>
+#include <unordered_map>
 #include <functional>
 
 #include "superblock.h"
+#include "file.h"
+#include "folder.h"
 
 using std::string;
 using std::mutex;
 using std::function;
-using std::unordered_set;
+using std::unordered_map;
 
 class RtfsInstance {
 
@@ -57,7 +59,8 @@ private:
     fuse_config* config;
 
     mutex lock;
-    unordered_set<InodeAddress, InodeAddressHasher> openFiles;
+    unordered_map<uint64_t, RtfsFile> openFiles;
+    unordered_map<uint64_t, RtfsFolder> openFolders;
 };
 
 

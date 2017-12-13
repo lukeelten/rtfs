@@ -3,7 +3,7 @@ project(rtfs)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(SOURCE_FILES src/main.cpp src/rtfs/formatter.cpp src/rtfs/inode.cpp src/rtfs/superblock.cpp src/rtfs/instance.cpp src/rtfs/internal.cpp src/rtfs/file.cpp include/rtfs/file.h src/rtfs/inode_address.cpp include/rtfs/folder.h src/rtfs/folder.cpp)
+set(SOURCE_FILES src/main.cpp src/rtfs/formatter.cpp src/rtfs/inode.cpp src/rtfs/superblock.cpp src/rtfs/instance.cpp src/rtfs/internal.cpp src/rtfs/file.cpp include/rtfs/file.h src/rtfs/inode_address.cpp include/rtfs/folder.h src/rtfs/folder.cpp src/rtfs/block.cpp)
 include_directories(include)
 
 find_package(PkgConfig)

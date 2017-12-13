@@ -55,11 +55,11 @@ RtfsFile::RtfsFile(const InodeAddress& addr) : root(), inodes(), size(0) {
     RtfsInstance* instance = RtfsInstance::getInstance();
 
     fseek(instance->getFile(), addr.getAddress(), SEEK_SET);
-    if (fread(&root, sizeof(Inode), 1, instance->getFile()) != sizeof(Inode)) {
+    if (fread(&inode, sizeof(Inode), 1, instance->getFile()) != sizeof(Inode)) {
         throw runtime_error("Error while reading file root inode");
     }
 
-    if (root.getType() != TYPE_FILE) {
+    if (inode.getType() != TYPE_FILE) {
         throw runtime_error("Invalid inode type");
     }
 
@@ -92,8 +92,4 @@ void RtfsFile::loadFile() {
         inodes.push_back(current.getAddress());
     }
 
-}
-
-bool RtfsFile::rename(const string &name) {
-    return false;
 }

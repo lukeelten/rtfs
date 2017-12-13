@@ -3,14 +3,13 @@
 #define RTFS_FILE_H
 
 #include <list>
-#include <string>
 
+#include "block.h"
 #include "inode.h"
 
 using std::list;
-using std::string;
 
-class RtfsFile {
+class RtfsFile : public RtfsBlock {
 public:
     RtfsFile(off_t size); // Allocate new file with this size
     explicit RtfsFile(const InodeAddress& addr); // Reads file from disk
@@ -23,12 +22,9 @@ public:
     RtfsFile& operator = (const RtfsFile& ) = default;
     RtfsFile& operator = (RtfsFile&& ) = default;
 
-    bool rename(const string& name);
-
 private:
     void loadFile();
 
-    Inode root;
     list<InodeAddress> inodes;
     off_t size; // Total file size
 };

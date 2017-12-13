@@ -16,7 +16,9 @@
 #include "rtfs/formatter.h"
 #include "rtfs/instance.h"
 #include "rtfs/internal.h"
+#include "rtfs/block.h"
 #include "rtfs/file.h"
+#include "rtfs/folder.h"
 
 
 

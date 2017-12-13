@@ -4,17 +4,16 @@
 
 #include <vector>
 
-#include "inode.h"
+#include "block.h"
 #include "inode_address.h"
 
 using std::vector;
 
-class RtfsFolder {
+class RtfsFolder : public RtfsBlock {
 public:
 
 
 private:
-    Inode inode;
     vector<InodeAddress> children;
 
 };
