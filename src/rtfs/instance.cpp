@@ -9,38 +9,17 @@
 
 using namespace std;
 
-bool file_exists(const string& filename) noexcept {
-    struct stat stats;
-    int exists = stat(filename.c_str(), &stats);
 
-    return (exists == 0);
-}
-
-
-RtfsInstance::RtfsInstance(string file_) : filename(move(file_)), openFiles() {
-    if (!file_exists(filename)) {
-        throw runtime_error("File does not exist.");
-    }
-    file = nullptr;
-}
-
-RtfsInstance::~RtfsInstance() {
-    if (file != nullptr) {
-        lock_guard<mutex> guard(lock);
-
-        fflush(file);
-        fclose(file);
-        file = nullptr;
-    }
+RtfsInstance::RtfsInstance(const string& file_) : file(file_), superblock(), root(), config(nullptr), openFiles(), openAddresses(), openFolders(), counter(0) {
 }
 
 RtfsInstance* RtfsInstance::init(struct fuse_config* config_) noexcept {
-    config = config_;
-    file = fopen(filename.c_str(), "rb+");
-
-    if (file == NULL) {
-        throw runtime_error("Cannot open FS image.");
+    if (!file.exists()) {
+        throw runtime_error("File not exists");
     }
+
+    config = config_;
+    file.open();
 
     superblock = Superblock::readFromDisk();
     root = superblock.getRoot().readInode();
@@ -55,15 +34,41 @@ RtfsInstance* RtfsInstance::init(struct fuse_config* config_) noexcept {
 
 bool RtfsInstance::openFile(string filename, struct fuse_file_info* fi) {
 
-    InodeAddress addr; // Find in tree
+    // @todo find in tree
+    InodeAddress addr;
 
-    if (openFiles.find(addr) != openFiles.end()) {
-        // File already open
+    try {
+        if (openAddresses.find(addr) != openAddresses.end()) {
+            return false; // FIle already open
+        }
+
+        FileDescriptor fd = getNextDescriptor();
+        openFiles[fd] = make_shared<RtfsFile>(addr);
+        openAddresses[addr] = fd;
+        fi->fh = fd;
+
+        return true;
+    } catch(std::exception& ex) {
+        // @todo log exception
         return false;
     }
+}
 
-    fi->fh = static_cast<uint64_t>(addr.getAddress());
-    openFiles.insert(addr);
+FileDescriptor RtfsInstance::getNextDescriptor() {
+    return counter++;
+}
 
-    return true;
+shared_ptr<RtfsFile> RtfsInstance::getOpenFile(FileDescriptor fd) {
+    if (openFiles.find(fd) != openFiles.end()) {
+        return openFiles[fd];
+    }
+    return shared_ptr<RtfsFile>();
+}
+
+
+shared_ptr<RtfsFolder> RtfsInstance::getOpenFolder(FileDescriptor fd) {
+    if (openFolders.find(fd) != openFolders.end()) {
+        return openFolders[fd];
+    }
+    return shared_ptr<RtfsFolder>();
 }

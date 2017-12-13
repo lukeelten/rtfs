@@ -1,10 +1,13 @@
 
 #include <fuse.h>
 #include <cstdio>
+#include <stdexcept>
+#include <memory>
 
 #include "rtfs/instance.h"
 #include "rtfs/internal.h"
 #include "rtfs/file.h"
+#include "rtfs/folder.h"
 
 using namespace std;
 
@@ -134,8 +137,24 @@ int rtfs_link(const char *, const char *) {
     return 0;
 }
 
-int rtfs_chmod(const char *, mode_t, struct fuse_file_info *) {
-    return 0;
+int rtfs_chmod(const char* path, mode_t mode, struct fuse_file_info* fi) {
+    RtfsInstance* instance = RtfsInstance::getInstance();
+    try {
+        if (fi->fh > 0) {
+            shared_ptr<RtfsFile> file = instance->getOpenFile(fi->fh);
+
+
+
+
+        } else {
+            InodeAddress addr; // read from tree
+            shared_ptr<RtfsBlock> block = RtfsBlock::readFromDisk(addr);
+        }
+
+
+    } catch (std::exception& ex) {
+        return ERR_GENERAL_ERROR;
+    }
 }
 
 int rtfs_chown(const char *, uid_t, gid_t, struct fuse_file_info *) {
@@ -147,13 +166,13 @@ int rtfs_truncate(const char *, off_t, struct fuse_file_info *) {
 }
 
 int rtfs_open(const char* name, struct fuse_file_info* fi) {
-    if (RtfsInstance::getInstance()->openFile(string(name), fi)) {
+    if (RtfsInstance::getInstance()->openFile(name, fi)) {
         return ERR_SUCCESS;
     }
-    return ERR_GENERAL_ERROR;
+    return ERR_ACTION_FAILED;
 }
 
-int rtfs_read(const char *, char *, size_t, off_t, struct fuse_file_info *) {
+int rtfs_read(const char* path, char* buffer, size_t length, off_t offset, struct fuse_file_info* fi) {
     return 0;
 }
 
@@ -165,16 +184,17 @@ int rtfs_statfs(const char *, struct statvfs *) {
     return 0;
 }
 
-int rtfs_flush(const char *, struct fuse_file_info *) {
-    return fflush(RtfsInstance::getInstance()->getFile());
+int rtfs_flush(const char*, struct fuse_file_info *) {
+    RtfsInstance::getInstance()->getFile().flush();
+    return 0;
 }
 
 int rtfs_release(const char*, struct fuse_file_info* fi) {
     return 0;
 }
 
-int rtfs_fsync(const char *, int, struct fuse_file_info* fi) {
-    return fflush(RtfsInstance::getInstance()->getFile());;
+int rtfs_fsync(const char* path, int, struct fuse_file_info* fi) {
+    return rtfs_flush(path, fi);
 }
 
 int rtfs_opendir(const char* name, struct fuse_file_info* fi) {

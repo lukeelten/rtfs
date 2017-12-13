@@ -7,30 +7,30 @@
 
 Inode Inode::initEmpty(InodeAddress addr) {
     Inode inode;
-    inode.addr_ = addr;
-
-    inode.type_ = TYPE_EMPTY;
-
-    inode.parent_ = InodeAddress(0);
-    inode.next_ = InodeAddress(0);
-
-    inode.length_ = 0;
-
-    inode.atime_ = 0;
-    inode.ctime_ = 0;
-
-    inode.mode_ = 0;
-
-    inode.gid_ = 0;
-    inode.uid_ = 0;
+    inode.clear();
 
     return inode;
 }
 
 bool Inode::save() const noexcept {
     RtfsInstance* instance = RtfsInstance::getInstance();
+    return instance->getFile().write(this, addr_.getAddress());
+}
 
-    fseek(instance->getFile(), addr_.getAddress(), SEEK_SET);
-    return fwrite(this, sizeof(Inode), 1, instance->getFile()) == sizeof(Inode);
+void Inode::clear() noexcept {
+    type_ = TYPE_EMPTY;
+
+    parent_ = InodeAddress(0);
+    next_ = InodeAddress(0);
+
+    length_ = 0;
+
+    atime_ = 0;
+    ctime_ = 0;
+
+    mode_ = 0;
+
+    gid_ = 0;
+    uid_ = 0;
 }
 

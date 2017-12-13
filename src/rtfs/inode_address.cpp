@@ -14,15 +14,16 @@ size_t InodeAddressHasher::operator() (InodeAddress addr) const noexcept {
 Inode InodeAddress::readInode() const {
     RtfsInstance* instance = RtfsInstance::getInstance();
 
-    fseek(instance->getFile(), getAddress(), SEEK_SET);
     Inode inode;
-    if (fread(&inode, sizeof(Inode), 1, instance->getFile()) == sizeof(Inode)) {
+    if (instance->getFile().read(&inode, getAddress())) {
         return std::move(inode);
     }
 
     throw std::runtime_error("Error while read inode");
 }
 
+// Important operators
+// Non-members of class for obvious reasons
 bool operator == (const InodeAddress& lhs, const InodeAddress& rhs) noexcept {
     return lhs.getAddress() == rhs.getAddress();
 }

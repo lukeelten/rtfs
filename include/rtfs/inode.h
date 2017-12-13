@@ -59,6 +59,7 @@ public:
     uid_t getUid() const noexcept { return uid_; }
 
     bool save() const noexcept;
+    void clear() noexcept;
 
     explicit operator bool() const noexcept {
         return addr_.getAddress() > 0;

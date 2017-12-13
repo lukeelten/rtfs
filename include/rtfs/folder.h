@@ -11,6 +11,7 @@ using std::vector;
 
 class RtfsFolder : public RtfsBlock {
 public:
+    RtfsFolder() noexcept {}
 
 
 private:

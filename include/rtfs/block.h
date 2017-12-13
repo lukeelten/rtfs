@@ -10,15 +10,22 @@
 
 class RtfsBlock {
 protected:
+    RtfsBlock();
     RtfsBlock(Inode inode_);
 
     virtual void readType() = 0;
 
 public:
+    // Constructor has to be virtual
     virtual ~RtfsBlock() = default;
+
+    // Copy & Move is fine
     RtfsBlock(const RtfsBlock& ) = default;
+    RtfsBlock(RtfsBlock&& ) = default;
+    RtfsBlock& operator = (const RtfsBlock& ) = default;
+    RtfsBlock&operator = (RtfsBlock&& ) = default;
 
-
+    // Reads Inode from disks and creates appropriate type
     static std::shared_ptr<RtfsBlock> readFromDisk(const InodeAddress& addr);
 
     const Inode& getInode() const noexcept { return inode; }
@@ -26,10 +33,9 @@ public:
     bool rename(const std::string& name);
     bool unlink();
 
-    bool write(const char* data, size_t bytes);
-    bool read(char* buffer, size_t bytes);
 
-private:
+
+protected:
     Inode inode;
 
 };

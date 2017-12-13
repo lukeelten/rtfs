@@ -23,7 +23,7 @@ public:
     Inode readInode() const;
 
     off_t getAddress() const noexcept { return addr_; }
-    explicit operator off_t() const noexcept { return addr_;}
+    operator off_t() const noexcept { return addr_;}
 
     operator bool() const noexcept { return addr_ > 0; }
 
@@ -31,12 +31,19 @@ private:
     off_t addr_;
 };
 
+// Hash function to use InodeAddress in unordered_map
+namespace std {
+    template<>
+    class hash<InodeAddress> {
+    public:
+        size_t operator() (const InodeAddress& addr) const {
+            return hasher(addr.getAddress());
+        }
 
-class InodeAddressHasher {
-public:
-    size_t operator () (InodeAddress addr) const noexcept;
-};
-
+    private:
+        static hash<off_t> hasher; // will be instantiated thread safe
+    };
+}
 
 // Non  Member Functions
 bool operator == (const InodeAddress& lhs, const InodeAddress& rhs) noexcept;

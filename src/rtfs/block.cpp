@@ -18,9 +18,7 @@ static std::shared_ptr<RtfsBlock> RtfsBlock::readFromDisk(const InodeAddress &ad
         throw runtime_error("Invalid inode address");
     }
     Inode inode;
-
-    fseek(instance->getFile(), addr.getAddress(), SEEK_SET);
-    fread(&inode, sizeof(Inode), 1, instance->getFile());
+    instance->getFile().read(&inode, addr.getAddress());
 
     switch (inode.getType()) {
         case TYPE_DIR:
@@ -47,5 +45,13 @@ bool RtfsBlock::rename(const string& name) {
 }
 
 bool RtfsBlock::unlink() {
+    Inode copy = inode; // Backup
+    inode.clear();
+
+    if (inode.save()) {
+        return true;
+    }
+
+    inode = move(copy);
     return false;
 }
