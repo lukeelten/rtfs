@@ -56,6 +56,9 @@ public:
     shared_ptr<RtfsFile> getOpenFile(FileDescriptor fd);
     shared_ptr<RtfsFolder> getOpenFolder(FileDescriptor fd);
     shared_ptr<RtfsBlock> getOpen(FileDescriptor fd);
+    shared_ptr<RtfsBlock> getOpen(InodeAddress addr);
+
+    bool isOpen(InodeAddress addr) const { return openAddresses.find(addr) != openAddresses.end();}
 
 
 private:

@@ -23,6 +23,8 @@ public:
     RtfsFile& operator = (const RtfsFile& ) = default;
     RtfsFile& operator = (RtfsFile&& ) = default;
 
+    off_t getSize() const noexcept { return size; }
+
 private:
     void loadFile();
 

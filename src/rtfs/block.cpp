@@ -55,3 +55,14 @@ bool RtfsBlock::unlink() {
     inode = move(copy);
     return false;
 }
+
+bool RtfsBlock::updateOwner(uid_t uid, gid_t gid) {
+    inode.setUid(uid);
+    inode.setGid(gid);
+    return inode.save();
+}
+
+bool RtfsBlock::updateMode(mode_t mode) {
+    inode.setMode(mode);
+    return inode.save();
+}

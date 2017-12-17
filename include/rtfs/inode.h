@@ -54,9 +54,12 @@ public:
     time_t getCreationTime() const noexcept { return ctime_; }
 
     mode_t getMode() const noexcept { return mode_; }
+    void setMode(mode_t mode) noexcept { mode_ = mode; }
 
     gid_t getGid() const noexcept { return gid_; }
+    void setGid(gid_t gid) noexcept {gid_ = gid; }
     uid_t getUid() const noexcept { return uid_; }
+    void setUid(uid_t uid) noexcept { uid_ = uid; }
 
     bool save() const noexcept;
     void clear() noexcept;

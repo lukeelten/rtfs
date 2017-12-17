@@ -7,6 +7,8 @@
 
 #include "rtfs.h"
 
+#include "log.h"
+
 using namespace std;
 
 
@@ -49,13 +51,13 @@ bool RtfsInstance::openFile(string filename, struct fuse_file_info* fi) {
 
         return true;
     } catch(std::exception& ex) {
-        // @todo log exception
+        Log::getInstance() << ex;
         return false;
     }
 }
 
 FileDescriptor RtfsInstance::getNextDescriptor() {
-    return counter++;
+    return counter++; // Atomic operation
 }
 
 shared_ptr<RtfsFile> RtfsInstance::getOpenFile(FileDescriptor fd) {
@@ -71,4 +73,28 @@ shared_ptr<RtfsFolder> RtfsInstance::getOpenFolder(FileDescriptor fd) {
         return openFolders[fd];
     }
     return shared_ptr<RtfsFolder>();
+}
+
+shared_ptr<RtfsBlock> RtfsInstance::getOpen(FileDescriptor fd) {
+    auto file = openFiles.find(fd);
+    if (file == openFiles.end()) {
+        auto folder = openFolders.find(fd);
+
+        if (folder != openFolders.end()) {
+            return folder->second;
+        }
+
+        return shared_ptr<RtfsBlock>();
+    }
+
+    return file->second;
+}
+
+shared_ptr<RtfsBlock> RtfsInstance::getOpen(InodeAddress addr) {
+    auto fd = openAddresses.find(addr);
+    if (fd != openAddresses.end()) {
+        return getOpen(fd->second);
+    }
+
+    return shared_ptr<RtfsBlock>();
 }

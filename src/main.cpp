@@ -9,9 +9,6 @@
 
 using namespace std;
 
-void printHelp() {
-
-}
 
 int main(int argc, char* argv[]) {
 
@@ -36,6 +33,7 @@ int main(int argc, char* argv[]) {
     struct fuse_operations rtfs_operations = RtfsOperations::getOperations();
     RtfsInstance* rtfs = new RtfsInstance(filename);
     int fuse_stat = fuse_main(argc, argv,&rtfs_operations, rtfs);
-
+    // Will return fast and turn over control to fuse
+    // Instance must not be deleted
     return fuse_stat;
 }

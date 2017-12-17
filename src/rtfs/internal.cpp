@@ -9,6 +9,8 @@
 #include "rtfs/file.h"
 #include "rtfs/folder.h"
 
+#include "log.h"
+
 using namespace std;
 
 // Declarations of internal file system functions
@@ -140,25 +142,57 @@ int rtfs_link(const char *, const char *) {
 int rtfs_chmod(const char* path, mode_t mode, struct fuse_file_info* fi) {
     RtfsInstance* instance = RtfsInstance::getInstance();
     try {
+        shared_ptr<RtfsBlock> block;
         if (fi->fh > 0) {
-            shared_ptr<RtfsFile> file = instance->getOpenFile(fi->fh);
-
-
-
-
+            block = instance->getOpen(fi->fh);
         } else {
-            InodeAddress addr; // read from tree
-            shared_ptr<RtfsBlock> block = RtfsBlock::readFromDisk(addr);
+            // @todo find in tree
+            InodeAddress addr;
+
+            if (instance->isOpen(addr)) {
+                block = instance->getOpen(addr);
+            } else {
+                block = RtfsBlock::readFromDisk(addr);
+            }
         }
 
+        if (block->updateMode(mode)) {
+            return ERR_SUCCESS;
+        }
 
+        return ERR_ACTION_FAILED;
     } catch (std::exception& ex) {
+        Log::getInstance() << ex;
         return ERR_GENERAL_ERROR;
     }
 }
 
-int rtfs_chown(const char *, uid_t, gid_t, struct fuse_file_info *) {
-    return 0;
+int rtfs_chown(const char* path, uid_t uid, gid_t gid, struct fuse_file_info* fi) {
+    RtfsInstance* instance = RtfsInstance::getInstance();
+    try {
+        shared_ptr<RtfsBlock> block;
+        if (fi->fh > 0) {
+            block = instance->getOpen(fi->fh);
+        } else {
+            // @todo find in tree
+            InodeAddress addr;
+
+            if (instance->isOpen(addr)) {
+                block = instance->getOpen(addr);
+            } else {
+                block = RtfsBlock::readFromDisk(addr);
+            }
+        }
+
+        if (block->updateOwner(uid, gid)) {
+            return ERR_SUCCESS;
+        }
+
+        return ERR_ACTION_FAILED;
+    } catch (std::exception& ex) {
+        Log::getInstance() << ex;
+        return ERR_GENERAL_ERROR;
+    }
 }
 
 int rtfs_truncate(const char *, off_t, struct fuse_file_info *) {

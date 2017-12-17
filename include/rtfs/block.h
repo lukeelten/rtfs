@@ -33,6 +33,9 @@ public:
     bool rename(const std::string& name);
     bool unlink();
 
+    bool updateOwner(uid_t uid, gid_t gid);
+    bool updateMode(mode_t mode);
+
 
 
 protected:
