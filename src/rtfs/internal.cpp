@@ -124,19 +124,23 @@ int rtfs_rename(const char* from, const char* to, unsigned int flags) {
         return ERR_NOT_IMPLEMENTED;
     }
 
-    // @todo Find address from tree
-    InodeAddress addr;
-    RtfsFile file(addr);
+    RtfsInstance* instance = RtfsInstance::getInstance();
+    InodeAddress addr = instance->getAddress(from);
+    if (instance->pathExists(to)) {
+        Log::getInstance() << "Rename failed. From: " << string(from) << " - To: " << string(to) << Log::newLine();
+        return ERR_ACTION_FAILED;
+    }
 
-    if (file.rename(to)) {
-        return 0;
+    shared_ptr<RtfsBlock> block = RtfsBlock::readFromDisk(addr);
+    if (block->rename(to)) {
+        return ERR_SUCCESS;
     }
 
     return ERR_ACTION_FAILED;
 }
 
 int rtfs_link(const char *, const char *) {
-    return 0;
+    return ERR_NOT_IMPLEMENTED;
 }
 
 int rtfs_chmod(const char* path, mode_t mode, struct fuse_file_info* fi) {
@@ -146,8 +150,7 @@ int rtfs_chmod(const char* path, mode_t mode, struct fuse_file_info* fi) {
         if (fi->fh > 0) {
             block = instance->getOpen(fi->fh);
         } else {
-            // @todo find in tree
-            InodeAddress addr;
+            InodeAddress addr = instance->getAddress(path);
 
             if (instance->isOpen(addr)) {
                 block = instance->getOpen(addr);
@@ -174,8 +177,7 @@ int rtfs_chown(const char* path, uid_t uid, gid_t gid, struct fuse_file_info* fi
         if (fi->fh > 0) {
             block = instance->getOpen(fi->fh);
         } else {
-            // @todo find in tree
-            InodeAddress addr;
+            InodeAddress addr = instance->getAddress(path);
 
             if (instance->isOpen(addr)) {
                 block = instance->getOpen(addr);
@@ -195,8 +197,32 @@ int rtfs_chown(const char* path, uid_t uid, gid_t gid, struct fuse_file_info* fi
     }
 }
 
-int rtfs_truncate(const char *, off_t, struct fuse_file_info *) {
-    return 0;
+int rtfs_truncate(const char* path, off_t size, struct fuse_file_info* fi) {
+    RtfsInstance* instance = RtfsInstance::getInstance();
+    try {
+        shared_ptr<RtfsFile> file;
+        if (fi->fh > 0) {
+            file = instance->getOpenFile(fi->fh);
+        } else {
+            InodeAddress addr = instance->getFileAddress(path);
+
+            if (instance->isOpen(addr)) {
+                file = instance->getOpen(addr);
+            } else {
+                // Will be closed immedatly after resize
+                file = RtfsBlock::readFromDisk(addr);
+            }
+        }
+
+        if (file->resize(size)) {
+            return ERR_SUCCESS;
+        }
+
+        return ERR_ACTION_FAILED;
+    } catch (std::exception& ex) {
+        Log::getInstance() << ex;
+        return ERR_GENERAL_ERROR;
+    }
 }
 
 int rtfs_open(const char* name, struct fuse_file_info* fi) {

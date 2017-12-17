@@ -25,6 +25,8 @@ public:
 
     off_t getSize() const noexcept { return size; }
 
+    bool resize(off_t length);
+
 private:
     void loadFile();
 

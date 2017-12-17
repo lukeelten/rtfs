@@ -60,6 +60,10 @@ public:
 
     bool isOpen(InodeAddress addr) const { return openAddresses.find(addr) != openAddresses.end();}
 
+    InodeAddress getFileAddress(const string& path) const;
+    InodeAddress getFolderAddress(const string& path) const;
+    InodeAddress getAddress(const string& path) const;
+    bool pathExists(const string& path) const;
 
 private:
     FileDescriptor getNextDescriptor();
