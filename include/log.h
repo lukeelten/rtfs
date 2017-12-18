@@ -28,6 +28,7 @@ public:
     Log& operator = (Log&& ) = delete;
 
 
+    Log& operator << (const char* str);
     Log& operator << (const string& str);
     Log& operator << (off_t data);
     Log& operator << (InodeAddress addr);

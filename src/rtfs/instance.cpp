@@ -35,9 +35,7 @@ RtfsInstance* RtfsInstance::init(struct fuse_config* config_) noexcept {
 }
 
 bool RtfsInstance::openFile(string filename, struct fuse_file_info* fi) {
-
-    // @todo find in tree
-    InodeAddress addr;
+    InodeAddress addr = this->getFileAddress(filename);
 
     try {
         if (openAddresses.find(addr) != openAddresses.end()) {
@@ -97,4 +95,55 @@ shared_ptr<RtfsBlock> RtfsInstance::getOpen(InodeAddress addr) {
     }
 
     return shared_ptr<RtfsBlock>();
+}
+
+bool RtfsInstance::openFolder(string name, struct fuse_file_info *fi) {
+    InodeAddress addr = this->getFileAddress(name);
+
+    try {
+        if (openAddresses.find(addr) != openAddresses.end()) {
+            return false; // FIle already open
+        }
+
+        FileDescriptor fd = getNextDescriptor();
+        openFolders[fd] = make_shared<RtfsFolder>(addr);
+        openAddresses[addr] = fd;
+        fi->fh = fd;
+
+        return true;
+    } catch(std::exception& ex) {
+        Log::getInstance() << ex;
+        return false;
+    }
+}
+
+bool RtfsInstance::close(FileDescriptor fd) {
+    auto file = openFiles.find(fd);
+
+    if (file != openFiles.end()) {
+        InodeAddress addr = file->second->getInode().getAddress();
+        openFiles.erase(fd);
+        openAddresses.erase(addr);
+        return true;
+    }
+
+    auto folder = openFolders.find(fd);
+    if (folder != openFolders.end()) {
+        InodeAddress addr = folder->second->getInode().getAddress();
+        openFolders.erase(fd);
+        openAddresses.erase(addr);
+        return true;
+    }
+
+    return false;
+}
+
+bool RtfsInstance::close(shared_ptr<RtfsBlock> block) {
+    auto fd = openAddresses.find(block->getInode().getAddress());
+
+    if (fd != openAddresses.end()) {
+        return close(fd->second);
+    }
+
+    return false;
 }

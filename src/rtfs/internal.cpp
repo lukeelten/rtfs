@@ -236,12 +236,12 @@ int rtfs_read(const char* path, char* buffer, size_t length, off_t offset, struc
     return 0;
 }
 
-int rtfs_write(const char *, const char *, size_t, off_t, struct fuse_file_info *) {
+int rtfs_write(const char* path, const char* data, size_t length, off_t offset, struct fuse_file_info* fi) {
     return 0;
 }
 
 int rtfs_statfs(const char *, struct statvfs *) {
-    return 0;
+    return ERR_NOT_IMPLEMENTED;
 }
 
 int rtfs_flush(const char*, struct fuse_file_info *) {
@@ -258,30 +258,73 @@ int rtfs_fsync(const char* path, int, struct fuse_file_info* fi) {
 }
 
 int rtfs_opendir(const char* name, struct fuse_file_info* fi) {
-    return 0;
+    RtfsInstance* instance = RtfsInstance::getInstance();
+    if (instance->openFolder(name, fi)) {
+        return ERR_SUCCESS;
+    }
+
+    return ERR_ACTION_FAILED;
 }
 
-int rtfs_readdir(const char *, void *, fuse_fill_dir_t, off_t, struct fuse_file_info *, enum fuse_readdir_flags) {
-    return 0;
+int rtfs_readdir(const char* path, void* buffer, fuse_fill_dir_t filler, off_t offset, struct fuse_file_info* fi, enum fuse_readdir_flags) {
+    if (fi->fh <= 0) {
+        return ERR_INVALID_HANLE;
+    }
+    try {
+        RtfsInstance *instance = RtfsInstance::getInstance();
+        shared_ptr<RtfsFolder> folder = instance->getOpenFolder(fi->fh);
+        if (!folder) {
+            Log::getInstance() << "Cannot find handle " << fi->fh << " for folder: " << path << Log::newLine();
+            return ERR_ACTION_FAILED;
+        }
+
+        auto func = [=](string name, off_t offset) -> bool {
+            // maybe remove FUSE_FILL_DIR_PLUS to get it working
+            return filler(buffer, name.c_str(), NULL, offset, FUSE_FILL_DIR_PLUS) == 0;
+        };
+
+        if (folder->readFolder(offset, func)) {
+            return ERR_SUCCESS;
+        }
+
+        return ERR_ACTION_FAILED;
+    } catch (exception& ex) {
+        Log::getInstance() << ex;
+        return ERR_GENERAL_ERROR;
+    }
 }
 
-int rtfs_releasedir(const char *, struct fuse_file_info *) {
-    return 0;
+int rtfs_releasedir(const char* name, struct fuse_file_info* fi) {
+    RtfsInstance* instance = RtfsInstance::getInstance();
+    if (fi->fh > 0 && instance->close(fi->fh)) {
+        return ERR_SUCCESS;
+    } else {
+        InodeAddress addr = instance->getFolderAddress(name);
+        if (instance->isOpen(addr) && instance->close(instance->getOpen(addr))) {
+            return ERR_SUCCESS;
+        }
+        Log::getInstance() << "No file handle and no open path name provided." << Log::newLine();
+    }
+    return ERR_ACTION_FAILED;
 }
 
 int rtfs_fsyncdir(const char *, int, struct fuse_file_info *) {
-    return fflush(RtfsInstance::getInstance()->getFile());
+    RtfsInstance::getInstance()->getFile().flush();
+    return ERR_SUCCESS;
 }
 
 void* rtfs_init(struct fuse_conn_info*, struct fuse_config* config) {
     return RtfsInstance::getInstance()->init(config);
 }
 
-void rtfs_destroy(void *) {
-    // Intentionally does nothing
+void rtfs_destroy(void*) {
+    // Destroy instance structure
+    RtfsInstance* instance = RtfsInstance::getInstance();
+    delete instance;
 }
 
 int rtfs_access(const char *, int) {
+    // Intentionally does nothing
     return 0;
 }
 

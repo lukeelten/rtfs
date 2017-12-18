@@ -6,10 +6,6 @@
 #include "rtfs/instance.h"
 #include "rtfs/inode_address.h"
 
-size_t InodeAddressHasher::operator() (InodeAddress addr) const noexcept {
-    std::hash<off_t> hash;
-    return hash(addr.getAddress());
-}
 
 Inode InodeAddress::readInode() const {
     RtfsInstance* instance = RtfsInstance::getInstance();

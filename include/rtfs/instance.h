@@ -15,6 +15,7 @@
 #include "superblock.h"
 #include "file.h"
 #include "folder.h"
+#include "../log.h"
 
 using std::string;
 using std::unordered_map;
@@ -27,7 +28,7 @@ class RtfsInstance {
 
 public:
     RtfsInstance(const string& file_);
-    ~RtfsInstance(); // Default is fine for us
+    ~RtfsInstance() = default; // Default is fine for us
 
     // No copy & No move
     RtfsInstance(const RtfsInstance& ) = delete;
@@ -57,6 +58,9 @@ public:
     shared_ptr<RtfsFolder> getOpenFolder(FileDescriptor fd);
     shared_ptr<RtfsBlock> getOpen(FileDescriptor fd);
     shared_ptr<RtfsBlock> getOpen(InodeAddress addr);
+
+    bool close(FileDescriptor fd);
+    bool close(shared_ptr<RtfsBlock> block);
 
     bool isOpen(InodeAddress addr) const { return openAddresses.find(addr) != openAddresses.end();}
 
@@ -121,7 +125,9 @@ public:
     bool read(T* buffer, off_t position, int flags = SEEK_SET) const noexcept {
         std::lock_guard<std::mutex> guard(lock);
         if (buffer == NULL || fseek(file.get(), position, flags) != 0) {
-            // @todo log ferror
+            Log::getInstance() << "Error while reading file" << Log::newLine();
+            Log::getInstance() << Log::tab() << ferror(file.get()) << Log::newLine();
+
             return false;
         }
 
@@ -137,7 +143,8 @@ public:
     bool write(const T* data, off_t position, int flags = SEEK_SET) const noexcept {
         std::lock_guard<std::mutex> guard(lock);
         if (data == NULL || fseek(file.get(), position, flags) != 0) {
-            // @todo log ferror
+            Log::getInstance() << "Error while writing file" << Log::newLine();
+            Log::getInstance() << Log::tab() << ferror(file.get()) << Log::newLine();
             return false;
         }
 

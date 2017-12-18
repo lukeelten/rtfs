@@ -78,3 +78,8 @@ Log::Log() : file("rtfs.log", ofstream::out | ofstream::trunc) {
 Log::~Log() {
     file.close();
 }
+
+Log &Log::operator<<(const char *str) {
+    file << str;
+    return *this;
+}
