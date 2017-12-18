@@ -11,7 +11,7 @@ using std::list;
 
 class RtfsFile : public RtfsBlock {
 public:
-    RtfsFile() noexcept {}
+    RtfsFile() noexcept : inodes(), size(0) {}
     RtfsFile(off_t size); // Allocate new file with this size
     explicit RtfsFile(const InodeAddress& addr); // Reads file from disk
     explicit RtfsFile(const Inode& inode); // Init from existing inode;
@@ -23,9 +23,9 @@ public:
     RtfsFile& operator = (const RtfsFile& ) = default;
     RtfsFile& operator = (RtfsFile&& ) = default;
 
-    off_t getSize() const noexcept { return size; }
-
     bool resize(off_t length);
+
+    off_t getSize() const noexcept override;
 
 private:
     void loadFile();

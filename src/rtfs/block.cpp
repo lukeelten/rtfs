@@ -11,7 +11,7 @@
 
 using namespace std;
 
-static std::shared_ptr<RtfsBlock> RtfsBlock::readFromDisk(const InodeAddress &addr) {
+std::shared_ptr<RtfsBlock> RtfsBlock::readFromDisk(const InodeAddress &addr) {
     RtfsInstance* instance = RtfsInstance::getInstance();
 
     if (!addr) {

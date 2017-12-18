@@ -11,6 +11,14 @@ class Superblock {
     friend class Formatter;
 
 public:
+    Superblock() : version(0), blockSize(0), numInodes(0), totalSize(0), treeSize(0), root() {}
+    ~Superblock() = default;
+
+    Superblock(const Superblock& ) = default;
+    Superblock(Superblock&& ) = default;
+    Superblock& operator = (const Superblock& ) = default;
+    Superblock& operator = (Superblock&& ) = default;
+
     static Superblock readFromDisk();
 
 

@@ -28,7 +28,7 @@ RtfsFile::RtfsFile(off_t size_) : inodes(), size(size_) {
     // Start with 1 because we skip root
     for (int i = 1; i < instance->getSuperblock().getNumInodes(); i++) {
         Inode inode;
-        instance->getFile().read(&inode, instance->getSuperblock().getBlockSize(), SEEK_CUR;
+        instance->getFile().read(&inode, instance->getSuperblock().getBlockSize(), SEEK_CUR);
 
         if (inode.getType() == TYPE_EMPTY) {
             inode.setType(TYPE_ALLOCATED);
@@ -88,5 +88,8 @@ void RtfsFile::loadFile() {
         totalSize += current.getLength();
         inodes.push_back(current.getAddress());
     }
+}
 
+off_t RtfsFile::getSize() const noexcept {
+    return size;
 }

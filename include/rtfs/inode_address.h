@@ -58,7 +58,7 @@ bool operator > (off_t lhs, const InodeAddress& rhs) noexcept;
 bool operator > (const InodeAddress& lhs, off_t rhs) noexcept;
 bool operator >= (const InodeAddress& lhs, const InodeAddress& rhs) noexcept;
 bool operator >= (off_t lhs, const InodeAddress& rhs) noexcept;
-bool operator >= (const InodeAddress& lhs, off_t rhs) noexcept
+bool operator >= (const InodeAddress& lhs, off_t rhs) noexcept;
 
 bool operator < (const InodeAddress& lhs, const InodeAddress& rhs) noexcept;
 bool operator < (off_t lhs, const InodeAddress& rhs) noexcept;

@@ -17,13 +17,19 @@ typedef unsigned char u8;
 #define TYPE_ALLOCATED 2
 #define TYPE_FILE 3
 #define TYPE_DIR 4
-#define TYPE_SYMLINK 5
 
 
 using std::string;
 
 class Inode {
 public:
+    Inode() : addr_(), type_(TYPE_UNKNOWN), filename_(), parent_(), next_(), length_(0), atime_(0), ctime_(0), mode_(), gid_(), uid_() {}
+    ~Inode() = default;
+    Inode(const Inode& ) = default;
+    Inode(Inode&& ) = default;
+    Inode& operator = (const Inode& ) = default;
+    Inode& operator = (Inode&& ) = default;
+
     static Inode initEmpty(InodeAddress addr);
 
     const InodeAddress& getAddress() const noexcept { return addr_; }

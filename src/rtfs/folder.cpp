@@ -40,3 +40,7 @@ bool RtfsFolder::readFolder(off_t start, function<bool(string, off_t)> filler) {
 
     return true;
 }
+
+off_t RtfsFolder::getSize() const noexcept {
+    return (sizeof(Inode));
+}

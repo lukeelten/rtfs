@@ -15,7 +15,7 @@ using namespace std;
 RtfsInstance::RtfsInstance(const string& file_) : file(file_), superblock(), root(), config(nullptr), openFiles(), openAddresses(), openFolders(), counter(0) {
 }
 
-RtfsInstance* RtfsInstance::init(struct fuse_config* config_) noexcept {
+RtfsInstance* RtfsInstance::init(struct fuse_config* config_) {
     if (!file.exists()) {
         throw runtime_error("File not exists");
     }

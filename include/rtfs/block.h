@@ -10,10 +10,8 @@
 
 class RtfsBlock {
 protected:
-    RtfsBlock();
-    RtfsBlock(Inode inode_);
-
-    virtual void readType() = 0;
+    RtfsBlock() = default;
+    RtfsBlock(Inode inode_) : inode(inode_) {};
 
 public:
     // Constructor has to be virtual
@@ -36,7 +34,7 @@ public:
     bool updateOwner(uid_t uid, gid_t gid);
     bool updateMode(mode_t mode);
 
-
+    virtual off_t getSize() const noexcept = 0;
 
 protected:
     Inode inode;

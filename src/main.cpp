@@ -3,7 +3,7 @@
 #include <regex>
 #include <memory>
 #include <sys/stat.h>
-#include <fuse.h>
+#include <fuse3/fuse.h>
 
 #include "rtfs.h"
 
@@ -30,6 +30,7 @@ int main(int argc, char* argv[]) {
         }
     }
 
+    RtfsOperations::init();
     struct fuse_operations rtfs_operations = RtfsOperations::getOperations();
     RtfsInstance* rtfs = new RtfsInstance(filename);
     int fuse_stat = fuse_main(argc, argv,&rtfs_operations, rtfs);

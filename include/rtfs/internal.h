@@ -2,7 +2,7 @@
 #ifndef RTFS_INTERNAL_H
 #define RTFS_INTERNAL_H
 
-#include <fuse.h>
+#include <fuse3/fuse.h>
 
 #ifndef INTERNAL
 #define INTERNAL static
@@ -21,6 +21,7 @@ public:
     RtfsOperations() = delete;
 
 
+    static void init() noexcept;
     static struct fuse_operations getOperations() noexcept {
         return operations_;
     }

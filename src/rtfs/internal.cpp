@@ -1,5 +1,5 @@
 
-#include <fuse.h>
+#include <fuse3/fuse.h>
 #include <cstdio>
 #include <stdexcept>
 #include <memory>
@@ -43,58 +43,68 @@ INTERNAL int rtfs_access (const char*, int);
 INTERNAL int rtfs_create (const char*, mode_t, struct fuse_file_info*);
 INTERNAL int rfts_fallocate (const char*, int, off_t, off_t, struct fuse_file_info*);
 
-/*
-INTERNAL int rtfs_setxattr (const char*, const char*, const char*, size_t, int);
-INTERNAL int rtfs_getxattr (const char*, const char*, char*, size_t);
-INTERNAL int rtfs_listxattr (const char*, char*, size_t);
-INTERNAL int rtfs_removexattr (const char*, const char*);
-
-.setxattr = rtfs_setxattr,
-.getxattr = rtfs_getxattr,
-.listxattr = rtfs_listxattr,
-.removexattr = rtfs_removexattr,
-*/
-
-/**
- * Set static operations struct
- * Struct contains function pointer to concrete file system functions
- */
-struct fuse_operations RtfsOperations::operations_ = {
-        .getattr = rtfs_getattr,
-        .readlink = rtfs_readlink,
-        .mknod = rtfs_mknod, // deprecated
-        .mkdir = rtfs_mkdir,
-        .unlink = rtfs_unlink,
-        .rmdir = rtfs_rmdir,
-        .symlink = rtfs_symlink,
-        .rename = rtfs_rename,
-        .link = rtfs_link,
-        .chmod = rtfs_chmod,
-        .chown = rtfs_chown,
-        .truncate = rtfs_truncate,
-        .open = rtfs_open,
-        .read = rtfs_read,
-        .write = rtfs_write,
-        .statfs = rtfs_statfs,
-        .flush = rtfs_flush,
-        .release = rtfs_release,
-        .fsync = rtfs_fsync,
-        .opendir = rtfs_opendir,
-        .readdir = rtfs_readdir,
-        .releasedir = rtfs_releasedir,
-        .fsyncdir = rtfs_fsyncdir,
-        .init = rtfs_init,
-        .destroy = rtfs_destroy,
-        .access = rtfs_access,
-        .create = rtfs_create,
-        .fallocate = rfts_fallocate
-};
+void RtfsOperations::init() noexcept {
+    // Assign function pointers
+    operations_.getattr = rtfs_getattr;
+    operations_.readlink = rtfs_readlink;
+    operations_.mknod = rtfs_mknod;;// deprecated
+    operations_.mkdir = rtfs_mkdir;
+    operations_.unlink = rtfs_unlink;
+    operations_.rmdir = rtfs_rmdir;
+    operations_.symlink = rtfs_symlink;
+    operations_.rename = rtfs_rename;
+    operations_.link = rtfs_link;
+    operations_.chmod = rtfs_chmod;
+    operations_.chown = rtfs_chown;
+    operations_.truncate = rtfs_truncate;
+    operations_.open = rtfs_open;
+    operations_.read = rtfs_read;
+    operations_.write = rtfs_write;
+    operations_.statfs = rtfs_statfs;
+    operations_.flush = rtfs_flush;
+    operations_.release = rtfs_release;
+    operations_.fsync = rtfs_fsync;
+    operations_.opendir = rtfs_opendir;
+    operations_.readdir = rtfs_readdir;
+    operations_.releasedir = rtfs_releasedir;
+    operations_.fsyncdir = rtfs_fsyncdir;
+    operations_.init = rtfs_init;
+    operations_.destroy = rtfs_destroy;
+    operations_.access = rtfs_access;
+    operations_.create = rtfs_create;
+    operations_.fallocate = rfts_fallocate;
+}
 
 int rtfs_getattr(const char* filename, struct stat* buffer, struct fuse_file_info* fi) {
-    return 0;
+    try {
+        RtfsInstance* instance = RtfsInstance::getInstance();
+        shared_ptr<RtfsBlock> block;
+        if (fi->fh > 0) {
+            block = instance->getOpen(fi->fh);
+        } else {
+            InodeAddress addr = instance->getAddress(filename);
+            block = RtfsBlock::readFromDisk(addr);
+        }
+
+        buffer->st_mode = block->getInode().getMode();
+        buffer->st_gid = block->getInode().getGid();
+        buffer->st_uid = block->getInode().getUid();
+        buffer->st_size = block->getSize();
+        buffer->st_nlink = 0;
+        buffer->st_blksize = (instance->getSuperblock().getBlockSize() - sizeof(Inode));
+        buffer->st_atim.tv_sec = block->getInode().getAccessTime();
+        buffer->st_ctim.tv_sec = block->getInode().getCreationTime();
+
+        return ERR_SUCCESS;
+    } catch(exception& ex) {
+        Log::getInstance() << ex;
+        return ERR_ACTION_FAILED;
+    }
+
 }
 
 int rtfs_readlink(const char *, char *, size_t) {
+    // FS does not support links
     return ERR_NOT_IMPLEMENTED;
 }
 
@@ -116,6 +126,7 @@ int rtfs_rmdir(const char* name) {
 }
 
 int rtfs_symlink(const char *, const char *) {
+    // FS does not support links
     return ERR_NOT_IMPLEMENTED;
 }
 
@@ -140,6 +151,7 @@ int rtfs_rename(const char* from, const char* to, unsigned int flags) {
 }
 
 int rtfs_link(const char *, const char *) {
+    // FS does not support links
     return ERR_NOT_IMPLEMENTED;
 }
 
@@ -241,6 +253,7 @@ int rtfs_write(const char* path, const char* data, size_t length, off_t offset, 
 }
 
 int rtfs_statfs(const char *, struct statvfs *) {
+    // @todo could be useful in future
     return ERR_NOT_IMPLEMENTED;
 }
 
@@ -249,8 +262,18 @@ int rtfs_flush(const char*, struct fuse_file_info *) {
     return 0;
 }
 
-int rtfs_release(const char*, struct fuse_file_info* fi) {
-    return 0;
+int rtfs_release(const char* path, struct fuse_file_info* fi) {
+    RtfsInstance* instance = RtfsInstance::getInstance();
+    if (fi->fh > 0 && instance->close(fi->fh)) {
+        return ERR_SUCCESS;
+    } else {
+        InodeAddress addr = instance->getFileAddress(path);
+        if (instance->isOpen(addr) && instance->close(instance->getOpen(addr))) {
+            return ERR_SUCCESS;
+        }
+        Log::getInstance() << "No file handle and no open path name provided." << Log::newLine();
+    }
+    return ERR_ACTION_FAILED;
 }
 
 int rtfs_fsync(const char* path, int, struct fuse_file_info* fi) {

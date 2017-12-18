@@ -15,7 +15,7 @@ using std::string;
 
 class RtfsFolder : public RtfsBlock {
 public:
-    RtfsFolder() noexcept {}
+    RtfsFolder() noexcept : children() {}
     ~RtfsFolder() = default;
 
     RtfsFolder(const RtfsFolder& ) = default;
@@ -24,10 +24,11 @@ public:
     RtfsFolder& operator = (RtfsFolder&& ) = default;
 
 
-
     size_t numChildren() const noexcept { return children.size(); }
 
     bool readFolder(off_t start, function<bool(string, off_t)> filler);
+
+    virtual off_t getSize() const noexcept override;
 
 private:
     vector<InodeAddress> children;
