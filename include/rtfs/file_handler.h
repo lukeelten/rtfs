@@ -43,11 +43,6 @@ public:
     }
 
     template<class T>
-    bool read(T* buffer) const noexcept {
-        return read<T>(buffer, 0, SEEK_CUR);
-    }
-
-    template<class T>
     bool read(T* buffer, off_t position, int flags = SEEK_SET) const noexcept {
         std::lock_guard<std::mutex> guard(lock);
         if (buffer == NULL || fseek(file.get(), position, flags) != 0) {
@@ -57,12 +52,7 @@ public:
             return false;
         }
 
-        return fread(buffer, sizeof(T), 1, file.get()) == sizeof(T);
-    }
-
-    template<class T>
-    bool write(const T* data) const noexcept {
-        return write<T>(data, 0, SEEK_CUR);
+        return fread(buffer, sizeof(T), 1, file.get()) == 1; // fread returns number of elements read
     }
 
     template<class T>
@@ -74,7 +64,7 @@ public:
             return false;
         }
 
-        return fwrite(data, sizeof(T), 1, file.get()) == sizeof(T);
+        return fwrite(data, sizeof(T), 1, file.get()) == 1;
     }
 
     bool setPosition(off_t position, int flags = SEEK_SET) const noexcept {

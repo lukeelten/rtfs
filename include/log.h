@@ -10,6 +10,7 @@
 #include "rtfs/inode_address.h"
 #include "rtfs/file.h"
 #include "rtfs/folder.h"
+#include "rtfs/superblock.h"
 
 using std::string;
 using std::ofstream;
@@ -33,6 +34,7 @@ public:
     Log& operator << (off_t data);
     Log& operator << (InodeAddress addr);
     Log& operator << (const Inode& inode);
+    Log& operator << (const Superblock& superblock);
 
     Log& operator << (const RtfsFile& rtfsFile);
     Log& operator << (const RtfsFolder& folder);

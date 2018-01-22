@@ -13,8 +13,9 @@ Superblock Superblock::readFromDisk() {
     RtfsInstance* instance = RtfsInstance::getInstance();
 
     Superblock superblock;
-    if (instance->getFile().read(&superblock)) {
-        return move(superblock);
+    if (instance->getFile().read<Superblock>(&superblock, 0)) {
+        Log::getInstance() << superblock;
+        return superblock;
     }
 
     throw runtime_error("Cannot read superblock");

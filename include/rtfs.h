@@ -2,9 +2,9 @@
 #define RTFS_RTFS_H
 
 
-#define RTFS_VERSION 1
+#define RTFS_VERSION 0x1
 #define DEFAULT_BLOCKSIZE (1024 * 4)
-#define DEFAULT_FILENAME "rtfs.bin"
+#define DEFAULT_FILENAME "/home/lukeelten/rtfs.bin"
 #define DEFAULT_SIZE (1024 * 1024 * 100)
 
 

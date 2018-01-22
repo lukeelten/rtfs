@@ -34,17 +34,7 @@ int main(int argc, char* argv[]) {
     struct fuse_operations rtfs_operations = op.getOperations();
     auto* rtfs = new RtfsInstance(filename);
     int fuse_stat = fuse_main(argc, argv,&rtfs_operations, rtfs);
-
-
-    RtfsInstance* inst = RtfsInstance::getInstance();
-    off_t treeAddr = 0 + sizeof(Superblock);
-
-    /*
-    const auto& filehandler = inst->getFile();
-    size_t i = 410;
-    filehandler.write<size_t>(&i, treeAddr);
-     */
-
+    Log::getInstance() << "Test";
 
     // Will return fast and turn over control to fuse
     // Instance must not be deleted
