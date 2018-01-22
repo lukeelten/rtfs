@@ -17,6 +17,7 @@
 #include "folder.h"
 #include "file_handler.h"
 #include "../log.h"
+#include "btree.h"
 
 using std::string;
 using std::unordered_map;
@@ -54,8 +55,8 @@ public:
         return file;
     }
 
-    shared_ptr<RtfsFile> getOpenFile(FileDescriptor fd);
-    shared_ptr<RtfsFolder> getOpenFolder(FileDescriptor fd);
+    shared_ptr<RtfsBlock> getOpenFile(FileDescriptor fd);
+    shared_ptr<RtfsBlock> getOpenFolder(FileDescriptor fd);
     shared_ptr<RtfsBlock> getOpen(FileDescriptor fd);
     shared_ptr<RtfsBlock> getOpen(InodeAddress addr);
 
@@ -64,10 +65,7 @@ public:
 
     bool isOpen(InodeAddress addr) const { return openAddresses.find(addr) != openAddresses.end();}
 
-    InodeAddress getFileAddress(const string& path) const;
-    InodeAddress getFolderAddress(const string& path) const;
-    InodeAddress getAddress(const string& path) const;
-    bool pathExists(const string& path) const;
+    shared_ptr<BTree> getTree() const noexcept { return tree; }
 
 private:
     FileDescriptor getNextDescriptor();
@@ -76,13 +74,14 @@ private:
 
     Superblock superblock;
     Inode root;
+    shared_ptr<BTree> tree;
 
     // Will be handled by fuse, DO NOT DELETE
     fuse_config* config;
 
-    unordered_map<FileDescriptor, shared_ptr<RtfsFile>> openFiles;
+    unordered_map<FileDescriptor, shared_ptr<RtfsBlock>> openFiles;
     unordered_map<InodeAddress, FileDescriptor> openAddresses;
-    unordered_map<FileDescriptor, shared_ptr<RtfsFolder>> openFolders;
+    unordered_map<FileDescriptor, shared_ptr<RtfsBlock>> openFolders;
 
     std::atomic<FileDescriptor> counter;
 };

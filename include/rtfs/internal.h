@@ -18,16 +18,14 @@
 // Class to encapsulate operations struct
 class RtfsOperations {
 public:
-    RtfsOperations() = delete;
+    RtfsOperations();
 
-
-    static void init() noexcept;
-    static struct fuse_operations getOperations() noexcept {
+    struct fuse_operations getOperations() const noexcept {
         return operations_;
     }
 
 private:
-    static struct fuse_operations operations_;
+    struct fuse_operations operations_;
 };
 
 

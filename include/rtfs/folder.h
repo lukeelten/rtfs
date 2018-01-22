@@ -15,7 +15,9 @@ using std::string;
 
 class RtfsFolder : public RtfsBlock {
 public:
-    RtfsFolder() noexcept : children() {}
+    RtfsFolder(const InodeAddress& addr);
+    RtfsFolder(const Inode& inode) : RtfsBlock(inode), children() {};
+    RtfsFolder() = default;
     ~RtfsFolder() = default;
 
     RtfsFolder(const RtfsFolder& ) = default;

@@ -24,7 +24,7 @@ public:
     RtfsBlock&operator = (RtfsBlock&& ) = default;
 
     // Reads Inode from disks and creates appropriate type
-    static std::shared_ptr<RtfsBlock> readFromDisk(const InodeAddress& addr);
+    static RtfsBlock* readFromDisk(const InodeAddress& addr);
 
     const Inode& getInode() const noexcept { return inode; }
 
@@ -34,7 +34,8 @@ public:
     bool updateOwner(uid_t uid, gid_t gid);
     bool updateMode(mode_t mode);
 
-    virtual off_t getSize() const noexcept = 0;
+    virtual off_t getSize() const noexcept;
+    u8 getType() const noexcept { return inode.getType(); }
 
 protected:
     Inode inode;

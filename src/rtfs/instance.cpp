@@ -12,7 +12,7 @@
 using namespace std;
 
 
-RtfsInstance::RtfsInstance(const string& file_) : file(file_), superblock(), root(), config(nullptr), openFiles(), openAddresses(), openFolders(), counter(0) {
+RtfsInstance::RtfsInstance(const string& file_) : file(file_), superblock(), root(), tree(), config(nullptr), openFiles(), openAddresses(), openFolders(), counter(0) {
 }
 
 RtfsInstance* RtfsInstance::init(struct fuse_config* config_) {
@@ -25,7 +25,12 @@ RtfsInstance* RtfsInstance::init(struct fuse_config* config_) {
 
     superblock = Superblock::readFromDisk();
     root = superblock.getRoot().readInode();
+    tree = BTree::readFromDisk(file, (0 + sizeof(Superblock)));
+
     openFiles.clear(); // In theory this should be empty anyway
+    openAddresses.clear();
+    openFolders.clear();
+
 
     if (superblock.getVersion() != RTFS_VERSION) {
         throw runtime_error("Invalid RTFS version found.");
@@ -35,7 +40,7 @@ RtfsInstance* RtfsInstance::init(struct fuse_config* config_) {
 }
 
 bool RtfsInstance::openFile(string filename, struct fuse_file_info* fi) {
-    InodeAddress addr = this->getFileAddress(filename);
+    InodeAddress addr = tree->getAddress(filename);
 
     try {
         if (openAddresses.find(addr) != openAddresses.end()) {
@@ -43,7 +48,7 @@ bool RtfsInstance::openFile(string filename, struct fuse_file_info* fi) {
         }
 
         FileDescriptor fd = getNextDescriptor();
-        openFiles[fd] = make_shared<RtfsFile>(addr);
+        openFiles[fd] = shared_ptr<RtfsBlock>(RtfsBlock::readFromDisk(addr));
         openAddresses[addr] = fd;
         fi->fh = fd;
 
@@ -58,19 +63,19 @@ FileDescriptor RtfsInstance::getNextDescriptor() {
     return counter++; // Atomic operation
 }
 
-shared_ptr<RtfsFile> RtfsInstance::getOpenFile(FileDescriptor fd) {
+shared_ptr<RtfsBlock> RtfsInstance::getOpenFile(FileDescriptor fd) {
     if (openFiles.find(fd) != openFiles.end()) {
         return openFiles[fd];
     }
-    return shared_ptr<RtfsFile>();
+    return shared_ptr<RtfsBlock>();
 }
 
 
-shared_ptr<RtfsFolder> RtfsInstance::getOpenFolder(FileDescriptor fd) {
+shared_ptr<RtfsBlock> RtfsInstance::getOpenFolder(FileDescriptor fd) {
     if (openFolders.find(fd) != openFolders.end()) {
         return openFolders[fd];
     }
-    return shared_ptr<RtfsFolder>();
+    return shared_ptr<RtfsBlock>();
 }
 
 shared_ptr<RtfsBlock> RtfsInstance::getOpen(FileDescriptor fd) {
@@ -98,15 +103,15 @@ shared_ptr<RtfsBlock> RtfsInstance::getOpen(InodeAddress addr) {
 }
 
 bool RtfsInstance::openFolder(string name, struct fuse_file_info *fi) {
-    InodeAddress addr = this->getFileAddress(name);
+    InodeAddress addr = tree->getAddress(name);
 
     try {
         if (openAddresses.find(addr) != openAddresses.end()) {
-            return false; // FIle already open
+            return false; // File already open
         }
 
         FileDescriptor fd = getNextDescriptor();
-        openFolders[fd] = make_shared<RtfsFolder>(addr);
+        openFolders[fd] = shared_ptr<RtfsBlock>(RtfsBlock::readFromDisk(addr));
         openAddresses[addr] = fd;
         fi->fh = fd;
 

@@ -30,9 +30,9 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    RtfsOperations::init();
-    struct fuse_operations rtfs_operations = RtfsOperations::getOperations();
-    RtfsInstance* rtfs = new RtfsInstance(filename);
+    RtfsOperations op;
+    struct fuse_operations rtfs_operations = op.getOperations();
+    auto* rtfs = new RtfsInstance(filename);
     int fuse_stat = fuse_main(argc, argv,&rtfs_operations, rtfs);
 
 

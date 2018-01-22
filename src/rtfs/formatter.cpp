@@ -25,10 +25,14 @@ void Formatter::format() {
 
     writeSuperblock();
 
-    fseek(fp, superblock.treeSize, SEEK_CUR);
     Inode root = Inode::initEmpty(superblock.root);
     root.setType(TYPE_DIR);
     root.setFilename("/");
+
+    BTree tree;
+    tree.insert("/", root.getAddress());
+    tree.save(fp, sizeof(Superblock));
+
     writeInode(root);
 
     for (off_t i = 0; i < superblock.numInodes; i++)  {

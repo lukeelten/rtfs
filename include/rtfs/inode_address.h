@@ -5,6 +5,7 @@
 
 #include <sys/stat.h>
 #include <string>
+#include <functional>
 
 class Inode;
 
@@ -37,11 +38,9 @@ namespace std {
     class hash<InodeAddress> {
     public:
         size_t operator() (const InodeAddress& addr) const {
+            static hash<off_t> hasher; // Thread safe
             return hasher(addr.getAddress());
         }
-
-    private:
-        static hash<off_t> hasher; // will be instantiated thread safe
     };
 }
 

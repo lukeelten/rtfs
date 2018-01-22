@@ -1,6 +1,7 @@
 
 
 #include <stdexcept>
+#include <functional>
 
 #include "rtfs/inode.h"
 #include "rtfs/instance.h"

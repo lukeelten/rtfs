@@ -93,3 +93,7 @@ void RtfsFile::loadFile() {
 off_t RtfsFile::getSize() const noexcept {
     return size;
 }
+
+bool RtfsFile::resize(off_t length) {
+    return false;
+}

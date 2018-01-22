@@ -14,7 +14,7 @@ using std::string;
 
 class FileHandler {
 public:
-    FileHandler(const string& filename_);
+    FileHandler(const string& filename_) : filename(filename_), file(), lock() {};
     ~FileHandler() = default;
 
     // No copy & move; In theory, move would be fine;

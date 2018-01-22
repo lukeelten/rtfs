@@ -1,7 +1,7 @@
 #include <vector>
 #include <functional>
 #include <string>
-
+#include <list>
 
 #include "rtfs/folder.h"
 #include "log.h"
@@ -43,4 +43,8 @@ bool RtfsFolder::readFolder(off_t start, function<bool(string, off_t)> filler) {
 
 off_t RtfsFolder::getSize() const noexcept {
     return (sizeof(Inode));
+}
+
+RtfsFolder::RtfsFolder(const InodeAddress &addr) {
+
 }
