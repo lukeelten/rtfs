@@ -12,9 +12,9 @@ using namespace std;
 
 
 Formatter::~Formatter() {
-    if (fp) {
-        fflush(fp);
-        fclose(fp);
+    if (file.is_open()) {
+        file.flush();
+        file.close();
     }
 }
 
@@ -31,19 +31,16 @@ void Formatter::format() {
 
     BTree tree;
     tree.insert("/", root.getAddress());
-    tree.save(fp, sizeof(Superblock));
+    // Save tree
 
     writeInode(root);
 
     for (off_t i = 0; i < superblock.numInodes; i++)  {
         off_t addr = static_cast<off_t>(superblock.root) + superblock.blockSize + (i * superblock.blockSize);
-        Inode inode = Inode::initEmpty(InodeAddress(addr));
-        writeInode(inode);
+        writeInode(Inode::initEmpty(InodeAddress(addr)));
     }
 
-    fflush(fp);
-    fclose(fp);
-    fp = nullptr;
+    file.flush();
 }
 
 void Formatter::calculateSizes() noexcept {
@@ -54,32 +51,41 @@ void Formatter::calculateSizes() noexcept {
     superblock.totalSize = superblock.numInodes * superblock.blockSize;
 
     superblock.root = InodeAddress(sizeof(Superblock) + superblock.treeSize);
-    superblock.version = RTFS_VERSION;
 }
 
 void Formatter::allocateFile() {
-    fp = fopen(filename_.c_str(), "wb+");
+    FILE* fp = fopen(filename_.c_str(), "wb");
     if (!fp) {
         throw runtime_error("Cannot allocate file");
     }
 
     ftruncate(fileno(fp), superblock.totalSize);
     fflush(fp);
+    fclose(fp);
+
+    file.open(filename_, ios::in | ios::out | ios::binary);
 }
 
 void Formatter::writeSuperblock() {
-    cout << dec << "Version: " << superblock.version << " - " << hex << superblock.version << endl;
     cout << dec << "Block Size: " << superblock.blockSize << " - " << hex << superblock.blockSize << endl;
     cout << dec << "Num Inodes: " << superblock.numInodes << " - " << hex << superblock.numInodes << endl;
     cout << dec << "Total Size: " << superblock.totalSize << " - " << hex << superblock.totalSize << endl;
     cout << dec << "Tree Size: " << superblock.treeSize << " - " << hex << superblock.treeSize << endl;
     cout << dec << "Root Addr: " << superblock.root.getAddress() << " - " << hex << superblock.root.getAddress() << endl;
 
-    fseek(fp, 0, SEEK_SET);
-    fwrite(&superblock, sizeof(Superblock), 1, fp);
+    Log::getInstance() << superblock;
+
+    Superblock* pointer = &superblock;
+
+    file.seekp(0);
+    file.write((char*)pointer, sizeof(Superblock));
+    file.flush();
 }
 
 void Formatter::writeInode(Inode inode) {
-    fseek(fp, inode.getAddress().getAddress(), SEEK_SET);
-    fwrite(&inode, sizeof(Inode), 1, fp);
+    Inode* pointer = &inode;
+    file.seekp(inode.getAddress().getAddress());
+    file.write((char*) pointer, sizeof(Inode));
+    file.flush();
 }
+

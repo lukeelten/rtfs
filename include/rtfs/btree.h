@@ -32,8 +32,7 @@ public:
     size_t getSize() const noexcept;
 
 private:
-    bool save(FILE* fp, off_t addr);
-    friend class Formatter;
+
 };
 
 

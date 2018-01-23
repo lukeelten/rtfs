@@ -3,15 +3,17 @@
 
 #include <string>
 #include <cstdio>
+#include <fstream>
 #include "file_handler.h"
 
 using std::string;
+using std::fstream;
 
 class Inode;
 
 class Formatter {
 public:
-    Formatter() : filename_(), fp(nullptr), superblock() {}
+    Formatter() : filename_(), file(), superblock() {}
     ~Formatter();
 
     // Copy is useless
@@ -36,7 +38,7 @@ private:
 
     string filename_;
 
-    FILE* fp;
+    fstream file;
     Superblock superblock;
 };
 

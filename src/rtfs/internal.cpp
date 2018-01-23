@@ -264,7 +264,7 @@ int rtfs_statfs(const char *, struct statvfs *) {
 }
 
 int rtfs_flush(const char*, struct fuse_file_info *) {
-    RtfsInstance::getInstance()->getFile().flush();
+    // Intentionally empty
     return 0;
 }
 
@@ -339,7 +339,7 @@ int rtfs_releasedir(const char* name, struct fuse_file_info* fi) {
 }
 
 int rtfs_fsyncdir(const char *, int, struct fuse_file_info *) {
-    RtfsInstance::getInstance()->getFile().flush();
+    // Intentionally empty
     return ERR_SUCCESS;
 }
 

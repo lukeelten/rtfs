@@ -92,7 +92,6 @@ Log &Log::operator<<(const char *str) {
 }
 
 Log &Log::operator<<(const Superblock& superblock) {
-    file << dec << "Version: " << superblock.getVersion() << " - " << hex << superblock.getVersion() << newLine();
     file << dec << "Block Size: " << superblock.getBlockSize() << " - " << hex << superblock.getBlockSize() << newLine();
     file << dec << "Num Inodes: " << superblock.getNumInodes() << " - " << hex << superblock.getNumInodes()<< newLine();
     file << dec << "Total Size: " << superblock.getTotalSize() << " - " << hex << superblock.getTotalSize() << newLine();

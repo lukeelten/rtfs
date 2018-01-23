@@ -13,10 +13,6 @@ std::shared_ptr<BTree> BTree::readFromDisk(const FileHandler &file, off_t addr) 
     return std::shared_ptr<BTree>();
 }
 
-bool BTree::save(FILE *fp, off_t addr) {
-    return false;
-}
-
 bool BTree::save(const FileHandler &handler, off_t addr) const {
     return false;
 }

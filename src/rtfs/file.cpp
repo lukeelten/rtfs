@@ -22,13 +22,12 @@ RtfsFile::RtfsFile(off_t size_) : inodes(), size(size_) {
     auto result = static_cast<double>(size) / blockSize;
     auto blocks = ceil(result); // Total numbers of blocks
 
-    off_t base = instance->getSuperblock().getRoot().getAddress();
-    instance->getFile().setPosition(base);
-
     // Start with 1 because we skip root
+    off_t currentAddress = instance->getSuperblock().getRoot().getAddress();
     for (int i = 1; i < instance->getSuperblock().getNumInodes(); i++) {
+        currentAddress += instance->getSuperblock().getBlockSize();
         Inode inode;
-        instance->getFile().read(&inode, instance->getSuperblock().getBlockSize(), SEEK_CUR);
+        instance->getFile().read(&inode, currentAddress);
 
         if (inode.getType() == TYPE_EMPTY) {
             inode.setType(TYPE_ALLOCATED);

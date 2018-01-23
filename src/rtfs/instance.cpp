@@ -1,6 +1,7 @@
 
 #include <string>
 #include <memory>
+#include <iostream>
 #include <stdexcept>
 #include <cstdio>
 #include <sys/stat.h>
@@ -21,7 +22,6 @@ RtfsInstance* RtfsInstance::init(struct fuse_config* config_) {
     }
 
     config = config_;
-    file.open();
 
     superblock = Superblock::readFromDisk();
     root = superblock.getRoot().readInode();
@@ -31,10 +31,13 @@ RtfsInstance* RtfsInstance::init(struct fuse_config* config_) {
     openAddresses.clear();
     openFolders.clear();
 
+    cout << dec << "Block Size: " << superblock.getBlockSize() << " - " << hex << superblock.getBlockSize() << endl;
+    cout << dec << "Num Inodes: " << superblock.getNumInodes() << " - " << hex << superblock.getNumInodes() << endl;
+    cout << dec << "Total Size: " << superblock.getTotalSize() << " - " << hex << superblock.getTotalSize() << endl;
+    cout << dec << "Tree Size: " << superblock.getTreeSize() << " - " << hex << superblock.getTreeSize() << endl;
+    cout << dec << "Root Addr: " << superblock.getRoot().getAddress() << " - " << hex << superblock.getRoot().getAddress() << endl;
 
-    if (superblock.getVersion() != RTFS_VERSION) {
-        throw runtime_error("Invalid RTFS version found.");
-    }
+    Log::getInstance() << superblock;
 
     return this;
 }

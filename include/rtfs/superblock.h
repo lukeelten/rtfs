@@ -11,7 +11,7 @@ class Superblock {
     friend class Formatter;
 
 public:
-    Superblock() : version(0), blockSize(0), numInodes(0), totalSize(0), treeSize(0), root() {}
+    Superblock() : blockSize(0), numInodes(0), totalSize(0), treeSize(0), root() {}
     ~Superblock() = default;
 
     Superblock(const Superblock& ) = default;
@@ -20,11 +20,6 @@ public:
     Superblock& operator = (Superblock&& ) = default;
 
     static Superblock readFromDisk();
-
-
-    u8 getVersion() const noexcept {
-        return version;
-    }
 
     off_t getBlockSize() const noexcept {
         return blockSize;
@@ -47,8 +42,6 @@ public:
     }
 
 private:
-    u8 version; // RTFS version
-
     off_t blockSize;
     off_t numInodes;
 

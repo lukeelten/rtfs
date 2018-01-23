@@ -17,6 +17,7 @@ int main(int argc, char* argv[]) {
     string filename = string(DEFAULT_FILENAME);
 
     {
+        // Create new scope to delete all instances after scope
         struct stat stats;
         int exists = stat(filename.c_str(), &stats);
 
